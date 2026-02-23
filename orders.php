@@ -1,111 +1,168 @@
 <?php
-require_once 'config.php';
+require_once '../config.php';
 
-// Check if user is logged in
-if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
+// Start session safely
+if (session_status() === PHP_SESSION_NONE) session_start();
+
+// Redirect if admin not logged in
+if(!isset($_SESSION['admin_id'])) {
+    header('Location: admin_login.php');
     exit;
 }
 
-$user_id = $_SESSION['user_id'];
+// Handle status update
+if(isset($_POST['update_status'])){
+    $order_id = intval($_POST['order_id']);
+    $status = $_POST['status'];
 
-// Fetch user orders
-$orders_query = "SELECT o.*, 
-                 GROUP_CONCAT(CONCAT(oi.quantity, 'x ', p.name) SEPARATOR ', ') as items
-                 FROM orders o
-                 LEFT JOIN order_items oi ON o.id = oi.order_id
-                 LEFT JOIN products p ON oi.product_id = p.id
-                 WHERE o.user_id = ?
-                 GROUP BY o.id
-                 ORDER BY o.created_at DESC";
-$stmt = $conn->prepare($orders_query);
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$orders_result = $stmt->get_result();
+    $stmt = $conn->prepare("UPDATE orders SET status=? WHERE id=?");
+    if($stmt){
+        $stmt->bind_param("si", $status, $order_id);
+        $stmt->execute();
+        $stmt->close();
+    }
+
+    // Redirect to avoid form resubmission
+    header('Location: orders.php');
+    exit;
+}
+
+// Fetch orders with user names
+$orders = $conn->query("
+    SELECT o.*, u.name AS user_name 
+    FROM orders o 
+    JOIN users u ON o.user_id = u.id 
+    ORDER BY o.id DESC
+");
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Orders - Artisan Pastries</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<meta charset="UTF-8">
+<title>Orders Management</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* Base */
+body { margin:0; font-family:'Inter', sans-serif; background:#f4f6f9; color:#333; }
+h2 { margin-bottom:25px; font-size:26px; }
+
+/* Sidebar */
+.sidebar {
+    width:230px; background:#1e272e; color:#fff;
+    position:fixed; height:100%; padding-top:30px; transition:0.3s;
+}
+.sidebar h2 { text-align:center; font-size:22px; margin-bottom:30px; }
+.sidebar a {
+    display:block; padding:14px 24px; color:#d2dae2; text-decoration:none;
+    margin-bottom:4px; border-radius:8px; transition:0.3s;
+}
+.sidebar a:hover { background:#485460; color:#fff; }
+
+/* Main */
+.main { margin-left:230px; padding:40px 30px; }
+
+/* Orders Grid */
+.orders-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+    gap:20px;
+}
+
+/* Order Card */
+.order-card {
+    background:#fff;
+    border-radius:15px;
+    padding:20px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.05);
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    transition:0.3s;
+}
+.order-card:hover { transform:translateY(-3px); box-shadow:0 15px 30px rgba(0,0,0,0.08); }
+
+.order-header { display:flex; justify-content:space-between; margin-bottom:12px; }
+.order-id { font-weight:700; color:#e17055; }
+.order-date { font-size:13px; color:#666; }
+
+.order-info { margin-bottom:15px; }
+.order-info p { margin-bottom:6px; font-size:14px; }
+
+/* Status Badge */
+.badge {
+    padding:6px 14px;
+    border-radius:20px;
+    font-size:13px;
+    font-weight:600;
+    display:inline-block;
+}
+.Pending { background:#ffeaa7; color:#b7791f; }
+.Completed { background:#d4edda; color:#2f855a; }
+.Cancelled { background:#f8d7da; color:#c0392b; }
+
+/* Form */
+select {
+    padding:6px 10px; border-radius:8px; border:1px solid #ccc; font-size:14px;
+    background:#fff;
+}
+button {
+    padding:6px 12px; border:none; border-radius:8px;
+    background:#e17055; color:white; cursor:pointer;
+    font-weight:600; transition:0.3s; margin-left:5px;
+}
+button:hover { background:#d35400; transform:translateY(-2px); }
+
+/* Responsive */
+@media(max-width:900px){
+    .sidebar { position:relative; width:100%; height:auto; }
+    .main { margin-left:0; padding:20px; }
+}
+</style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <nav class="nav-container">
-            <a href="index.php" class="logo">
-                <i class="fas fa-shopping-bag"></i>
-                <span>Artisan Pastries</span>
-            </a>
-            <div class="nav-menu" id="navMenu">
-                <a href="index.php#menu" class="nav-link">Menu</a>
-                <a href="cart.php" class="nav-link">
-                    <i class="fas fa-shopping-cart"></i> Cart
-                </a>
-                <a href="orders.php" class="nav-link active">My Orders</a>
-                <a href="logout.php" class="btn-primary">Logout</a>
-            </div>
-            <button class="mobile-menu-btn" id="mobileMenuBtn">
-                <i class="fas fa-bars"></i>
-            </button>
-        </nav>
-    </header>
 
-    <div class="page-content">
-        <div class="container">
-            <h1 class="page-title">My Orders</h1>
-            
-            <?php if (isset($_SESSION['success_message'])): ?>
-                <div class="alert-success"><?php echo htmlspecialchars($_SESSION['success_message']); unset($_SESSION['success_message']); ?></div>
-            <?php endif; ?>
-            
-            <?php if ($orders_result && $orders_result->num_rows > 0): ?>
-                <div class="orders-list">
-                    <?php while($order = $orders_result->fetch_assoc()): ?>
-                        <div class="order-card">
-                            <div class="order-header">
-                                <div>
-                                    <h3>Order #<?php echo $order['id']; ?></h3>
-                                    <p class="order-date">
-                                        <i class="fas fa-calendar"></i>
-                                        <?php echo date('F j, Y g:i A', strtotime($order['created_at'])); ?>
-                                    </p>
-                                </div>
-                                <div class="order-status">
-                                    <span class="status-badge status-<?php echo strtolower($order['status']); ?>">
-                                        <?php echo ucfirst($order['status']); ?>
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="order-items-list">
-                                <p><strong>Items:</strong> <?php echo htmlspecialchars($order['items'] ?? 'No items'); ?></p>
-                            </div>
-                           <div class="order-footer">
-    <div class="order-total">
-        <span>Total:</span>
-        <strong>₱<?php echo number_format($order['total_price'], 2); ?></strong>
-    </div>
-    <a href="order_details.php?order_id=<?php echo $order['id']; ?>" class="btn-view-order">
-        View Details
-    </a>
+<div class="sidebar">
+    <h2>🍰 Artisan Admin</h2>
+    <a href="dashboard.php">Dashboard</a>
+    <a href="add_product.php">Add Product</a>
+    <a href="orders.php">Orders</a>
+    <a href="logout.php">Logout</a>
 </div>
-                        </div>
-                    <?php endwhile; ?>
-                </div>
-            <?php else: ?>
-                <div class="empty-state">
-                    <i class="fas fa-receipt"></i>
-                    <h2>No orders yet</h2>
-                    <p>Start ordering delicious pastries!</p>
-                    <a href="index.php#menu" class="btn-primary-large">Browse Menu</a>
-                </div>
-            <?php endif; ?>
-        </div>
-    </div>
 
-    <script src="script.js"></script>
+<div class="main">
+    <h2>📦 Orders Management</h2>
+
+    <div class="orders-grid">
+        <?php while($o=$orders->fetch_assoc()): ?>
+        <div class="order-card">
+            <div class="order-header">
+                <span class="order-id">#<?php echo $o['id']; ?></span>
+                <span class="order-date"><?php echo date("M d, Y", strtotime($o['created_at'])); ?></span>
+            </div>
+
+            <div class="order-info">
+                <p><strong>User:</strong> <?php echo htmlspecialchars($o['user_name']); ?></p>
+                <p><strong>Total:</strong> ₱<?php echo number_format($o['total_price'],2); ?></p>
+                <p><strong>Status:</strong> <span class="badge <?php echo $o['status']; ?>"><?php echo $o['status']; ?></span></p>
+            </div>
+
+            <form method="POST" style="display:flex; align-items:center; margin-top:auto;">
+                <input type="hidden" name="order_id" value="<?php echo $o['id']; ?>">
+                <select name="status">
+                    <option value="Pending" <?php if($o['status']=='Pending') echo 'selected'; ?>>Pending</option>
+                    <option value="Completed" <?php if($o['status']=='Completed') echo 'selected'; ?>>Completed</option>
+                    <option value="Cancelled" <?php if($o['status']=='Cancelled') echo 'selected'; ?>>Cancelled</option>
+                </select>
+                <button type="submit" name="update_status">✔ Update</button>
+            </form>
+        </div>
+        <?php endwhile; ?>
+    </div>
+</div>
+
 </body>
 </html>

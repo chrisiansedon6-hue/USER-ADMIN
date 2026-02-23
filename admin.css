@@ -1,0 +1,274 @@
+/* General Reset */
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Quicksand',sans-serif;}
+body{background:#f4f6f9;color:#333;}
+a{text-decoration:none;color:inherit;}
+
+/* Sidebar */
+.sidebar{position:fixed;left:0;top:0;width:220px;height:100vh;background:#e17055;color:white;display:flex;flex-direction:column;}
+.sidebar h2{text-align:center;padding:1.5rem;font-size:1.5rem;font-weight:bold;}
+.sidebar a{padding:1rem 1.5rem;display:block;color:white;transition:0.3s;}
+.sidebar a:hover{background:#fdcb6e;color:#333;border-radius:0.25rem;}
+
+/* Main Content */
+.main{margin-left:220px;padding:2rem;}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;}
+.header h1{font-size:1.5rem;}
+.header a{padding:0.5rem 1rem;background:#e17055;color:white;border-radius:0.25rem;transition:0.3s;}
+.header a:hover{background:#fdcb6e;color:#333;}
+
+/* Dashboard Cards */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.5rem;margin-bottom:2rem;}
+.card{background:white;padding:1.5rem;border-radius:0.5rem;box-shadow:0 4px 12px rgba(0,0,0,0.05);text-align:center;}
+.card h3{margin-bottom:0.5rem;}
+.card p{font-size:1.25rem;font-weight:bold;color:#e17055;}
+
+/* Tables */
+table{width:100%;border-collapse:collapse;background:white;border-radius:0.5rem;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.05);}
+th,td{padding:0.75rem;text-align:center;border-bottom:1px solid #eee;}
+th{background:#f3f4f6;}
+tr:hover{background:#f9f9f9;}
+img{max-width:50px;border-radius:0.25rem;}
+
+/* Forms */
+form input, form textarea, form select, form button{width:100%;padding:0.5rem;margin:0.5rem 0;border-radius:0.25rem;border:1px solid #ccc;}
+form button{background:#e17055;color:white;border:none;cursor:pointer;transition:0.3s;}
+form button:hover{background:#fdcb6e;color:#333;}
+
+/* Responsive */
+@media(max-width:768px){
+    .sidebar{width:100%;height:auto;position:relative;flex-direction:row;overflow-x:auto;}
+    .main{margin-left:0;padding:1rem;}
+}
+
+/* Admin Login / Signup Common Styles */
+body {
+    font-family: 'Quicksand', sans-serif;
+    background: #f5f5f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.login-card {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 400px;
+}
+
+.login-card h2 {
+    text-align: center;
+    color: #e17055;
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+}
+
+.login-card input {
+    width: 100%;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    font-size: 1rem;
+}
+
+.login-card button {
+    width: 100%;
+    padding: 0.75rem;
+    background: #e17055;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.login-card button:hover {
+    background: #fdcb6e;
+    color: #333;
+}
+
+.error {
+    color: #d63031;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.success {
+    color: #2dce89;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.footer-link {
+    text-align: center;
+    margin-top: 0.75rem;
+    font-size: 0.9rem;
+}
+
+.footer-link a {
+    color: #e17055;
+    text-decoration: none;
+}
+
+.footer-link a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive */
+@media(max-width:480px){
+    .login-card{
+        padding:1.5rem;
+    }
+}
+
+body {
+    background: linear-gradient(135deg,#fdfbfb,#ebedee);
+    font-family: 'Poppins', sans-serif;
+}
+
+.sidebar {
+    backdrop-filter: blur(15px);
+    background: rgba(255,255,255,0.2);
+    border-right:1px solid rgba(255,255,255,0.3);
+}
+
+.card {
+    backdrop-filter: blur(20px);
+    background: rgba(255,255,255,0.6);
+    border-radius:15px;
+    box-shadow:0 8px 30px rgba(0,0,0,0.1);
+}
+
+table {
+    background:white;
+    border-radius:10px;
+    overflow:hidden;
+}
+
+button {
+    transition:all 0.3s ease;
+}
+button:hover {
+    transform:translateY(-3px);
+}
+
+.custom-select-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+#categorySearch {
+    width: 100%;
+    padding: 0.9rem;
+    border-radius: 12px;
+    border: 1px solid #e0e0e0;
+    font-size: 0.95rem;
+    cursor: pointer;
+    background:#fff;
+}
+
+.custom-options {
+    list-style:none;
+    position: absolute;
+    top: 110%;
+    left: 0;
+    width: 100%;
+    max-height:200px;
+    overflow-y:auto;
+    background:#fff;
+    border:1px solid #e0e0e0;
+    border-radius:12px;
+    display:none;
+    z-index:10;
+    box-shadow:0 8px 20px rgba(0,0,0,0.05);
+    padding:0;
+    margin:0;
+}
+
+.custom-options li {
+    padding:10px 14px;
+    cursor:pointer;
+    transition:0.2s;
+}
+
+.custom-options li:hover {
+    background:#ffe8e0;
+}
+
+.badge-category {
+    background:#f1f2f6;
+    padding:4px 10px;
+    border-radius:12px;
+    font-size:0.85rem;
+    color:#2d3436;
+    font-weight:500;
+}
+
+/* Menu Section */
+.menu-section { padding:4rem 2rem; max-width:1200px; margin:0 auto; }
+
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Fixed 3 columns on desktop */
+    gap: 2rem;
+}
+
+.menu-item {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border:1px solid #e5e7eb;
+    border-radius:0.5rem;
+    overflow:hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+    background:#fff;
+    min-height: 420px; /* uniform height */
+}
+
+.menu-image img {
+    width:100%;
+    height:250px;
+    object-fit:cover;
+}
+
+.menu-info {
+    padding:1rem;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.menu-name { font-weight:bold; }
+.menu-desc { font-size:0.875rem; color:#6b7280; }
+.menu-price { font-weight:bold; color:#e17055; }
+
+.btn-add-cart {
+    background:#e17055;
+    color:#fff;
+    padding:0.5rem 1rem;
+    border-radius:0.5rem;
+    font-weight:600;
+    display:inline-flex;
+    align-items:center;
+    gap:0.25rem;
+    justify-content:center;
+    transition:background 0.3s;
+    border:none;
+    cursor:pointer;
+    margin-top:0.5rem;
+}
+.btn-add-cart:hover { background:#fdcb6e; }
+
+/* Responsive */
+@media(max-width:1024px){
+    .menu-grid { grid-template-columns: repeat(2, 1fr); } /* 2 columns for tablets */
+}
+@media(max-width:768px){
+    .menu-grid { grid-template-columns: 1fr; } /* 1 column for mobile */
+}
